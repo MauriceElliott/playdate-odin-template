@@ -1,0 +1,4 @@
+name=OdinTemplate
+author=CodeDawa
+description=An Odin language template for Playdate
+bundleID=com.codedawa.pdtemplate
