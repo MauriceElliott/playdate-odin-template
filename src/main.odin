@@ -13,7 +13,7 @@ logo: ^pd.Sprite
 logo_w :: 105
 logo_h :: 31
 logo_x: f32 = 200
-logo_y: f32 = 120
+logo_y: f32 = 70
 start_time: time.Time
 
 @(export)
@@ -36,7 +36,7 @@ update_callback :: proc "c" (userdata: rawptr) -> pd.Update_Result {
 }
 
 game_init :: proc() {
-	start_time := time.now()
+	start_time = time.now()
 	logo = pd_api.sprite.new_sprite()
 	bounds_x := logo_x - (logo_w / 2)
 	bounds_y := logo_y - (logo_h / 2)
@@ -49,11 +49,11 @@ game_init :: proc() {
 }
 
 game_update :: proc() {
-	sin_time := f32(time.since(start_time) * 4)
+	sin_time := f32(time.duration_seconds(time.since(start_time)) * 4)
 	log := fmt.aprintf("%f", sin_time)
 
 	pd_api.system.log_to_console(str.clone_to_cstring(log))
-	pd_api.sprite.move_by(logo, 0, math.asin(sin_time))
+	pd_api.sprite.move_by(logo, 0, (math.sin(sin_time) * 4))
 	pd_api.sprite.update_and_draw_sprites()
 }
 
