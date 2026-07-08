@@ -1,21 +1,17 @@
 package game
 
-import pd "../packages/playdate"
+import pd "../packages/playdate-api"
 import "base:runtime"
 import "core:fmt"
-import "core:math"
 import str "core:strings"
-import "core:time"
 
 pd_api: ^pd.Api
 global_ctx: runtime.Context
 logo: ^pd.Sprite
-blackbg: ^pd.Sprite
 logo_w :: 105
 logo_h :: 31
-logo_x: f32 = 200
-logo_y: f32 = 70
-start_time: time.Time
+logo_x: f32 = 195
+logo_y: f32 = 85
 
 @(export)
 eventHandler :: proc "c" (api: ^pd.Api, event: pd.System_Event, arg: u32) -> i32 {
@@ -37,26 +33,29 @@ update_callback :: proc "c" (userdata: rawptr) -> pd.Update_Result {
 }
 
 game_init :: proc() {
-	start_time = time.now()
+	pd_api.graphics.set_background_color(.Black)
+
 	logo = pd_api.sprite.new_sprite()
-	blackbg = pd_api.sprite.new_sprite()
 	bounds_x := logo_x - (logo_w / 2)
 	bounds_y := logo_y - (logo_h / 2)
 
 	pd_api.sprite.set_bounds(logo, pd.PDRect{bounds_x, bounds_y, logo_w, logo_h})
-	pd_api.sprite.set_bounds(blackbg, pd.PDRect{0, 0, 400, 240})
 	out_err: cstring
 	image := pd_api.graphics.load_bitmap("assets/bitmaps/logo.png", &out_err)
-	bg := pd_api.graphics.load_bitmap("assets/bitmaps/blackbg.png", &out_err)
-	pd_api.sprite.set_image(blackbg, bg, .Unflipped)
+	if out_err != nil {
+		message := str.clone_to_cstring(fmt.tprintf("error: %s", out_err))
+		pd_api.system.log_to_console(message)
+	}
+
 	pd_api.sprite.set_image(logo, image, .Unflipped)
-	pd_api.sprite.add_sprite(blackbg)
 	pd_api.sprite.add_sprite(logo)
 }
 
 game_update :: proc() {
-	sin_time := f32(time.duration_seconds(time.since(start_time)) * 4)
-	pd_api.sprite.move_by(logo, 0, (math.sin(sin_time) * 4))
+	crank_angle := pd_api.system.get_crank_angle()
+
+	pd_api.graphics.clear(pd.color_solid(pd.Solid_Color.Black))
+	pd_api.sprite.move_to(logo, logo_x, crank_angle)
 	pd_api.sprite.update_and_draw_sprites()
 }
 
