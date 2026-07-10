@@ -53,9 +53,11 @@ game_init :: proc() {
 
 game_update :: proc() {
 	crank_angle := pd_api.system.get_crank_angle()
+	position := crank_angle - 40
+
 
 	pd_api.graphics.clear(pd.color_solid(pd.Solid_Color.Black))
-	pd_api.sprite.move_to(logo, logo_x, crank_angle)
+	pd_api.sprite.move_to(logo, logo_x, (position * 0.9))
 	pd_api.sprite.update_and_draw_sprites()
 }
 
