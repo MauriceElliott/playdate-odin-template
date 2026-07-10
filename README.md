@@ -6,3 +6,8 @@ This is a repo that gives a short, simple setup for compiling and running Odin f
 
 ## Setup
 
+
+## Remaining work
+- [ ] Build cleanup
+- [ ] Readme
+- [ ] Have a good stab at fixing "core:math"
