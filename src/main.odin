@@ -33,6 +33,7 @@ update_callback :: proc "c" (userdata: rawptr) -> pd.Update_Result {
 }
 
 game_init :: proc() {
+	pd_api.lua.start()
 	pd_api.graphics.set_background_color(.Black)
 
 	logo = pd_api.sprite.new_sprite()
@@ -52,12 +53,22 @@ game_init :: proc() {
 }
 
 game_update :: proc() {
-	crank_angle := pd_api.system.get_crank_angle()
-	position := crank_angle - 40
+	if pd_api.system.is_crank_docked() == 0 {
+		out_err: cstring
+		label: cstring = "Please, undock the crank...and give it a lil spin."
+		pd_api.graphics.draw_text(label, len(label))
+		if out_err != nil {
+			message := str.clone_to_cstring(fmt.tprintf("error: %s", out_err))
+			pd_api.system.log_to_console(message)
+		}
+	} else {
+		pd_api.lua.stop()
+		crank_angle := pd_api.system.get_crank_angle()
+		position := crank_angle - 40
 
-
-	pd_api.graphics.clear(pd.color_solid(pd.Solid_Color.Black))
-	pd_api.sprite.move_to(logo, logo_x, (position * 0.9))
-	pd_api.sprite.update_and_draw_sprites()
+		pd_api.graphics.clear(pd.color_solid(pd.Solid_Color.Black))
+		pd_api.sprite.move_to(logo, logo_x, (position * 0.9))
+		pd_api.sprite.update_and_draw_sprites()
+	}
 }
 

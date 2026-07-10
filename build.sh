@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
+
+# Expectations of the below script
+# The playdateSDK is in your home directory
+# If this is incorrect, update the below PLAYDATE_SDK_PATH variable
+# The first phase builds using the Odin Compiler
+# The second phase links upsing the link_map.ld provided by the playdateSDK
+# Finally the third phase builds an x86 version of the binary so it can launch in the simulator
+# We also zip the device version and put it in the build output folder
+# so that it can be quickly picked up and sideloaded onto the playdate.
+
 set -e
 
 PLAYDATE_SDK_PATH=${PLAYDATE_SDK_PATH:-$HOME/PlaydateSDK}
 PDSIM=${PDSIM:-$PLAYDATE_SDK_PATH/bin/PlaydateSimulator}
 
+# 
 PRODUCT_NAME=Template
 BUILD_DIR=build
 DEVICE_DIR=$BUILD_DIR/device
@@ -12,10 +23,13 @@ PDX_DIR=$BUILD_DIR/$PRODUCT_NAME.pdx
 GAME_PATH=$PLAYDATE_SDK_PATH/Disk/Games/$PRODUCT_NAME.pdx
 LIB_EXT=so
 
+# macOS specific adjustments
 if [[ "$(uname)" = "Darwin" ]]; then
     LIB_EXT=dylib
+    PDSIM=${PDSIM:-$PLAYDATE_SDK_PATH/bin/PlaydateSimulator} # TODO: Update this value to match MacOS setup.
 fi
 
+# Pre build cleanup
 rm -rf "$DEVICE_DIR" "$SOURCE_DIR" "$PDX_DIR"
 mkdir -p "$DEVICE_DIR" "$SOURCE_DIR"
 
@@ -58,8 +72,8 @@ fi
 
 "$PLAYDATE_SDK_PATH/bin/pdc" --skip-unknown "$SOURCE_DIR" "$PDX_DIR"
 
-rm -rf "$GAME_PATH"
-ln -s "$(pwd)/$PDX_DIR" "$GAME_PATH"
+# rm -rf "$GAME_PATH"
+# ln -s "$(pwd)/$PDX_DIR" "$GAME_PATH"
 
 cd build
 zip -r Template.pdx.zip Template.pdx
