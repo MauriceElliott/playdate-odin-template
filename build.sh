@@ -11,16 +11,20 @@
 
 set -e
 
+# Update to your own desired values.
+PROJ_NAME=Template
+AUTHOR="Maurice Elliott"
+DESC="A playdate game template for the Odin programming language."
+BUNDLEID="com.mme.odintemplate"
+VERSION="0.1.0"
+
 PLAYDATE_SDK_PATH=${PLAYDATE_SDK_PATH:-$HOME/PlaydateSDK}
 PDSIM=${PDSIM:-$PLAYDATE_SDK_PATH/bin/PlaydateSimulator}
 
-# 
-PRODUCT_NAME=Template
 BUILD_DIR=build
-DEVICE_DIR=$BUILD_DIR/device
-SOURCE_DIR=$BUILD_DIR/Source
-PDX_DIR=$BUILD_DIR/$PRODUCT_NAME.pdx
-GAME_PATH=$PLAYDATE_SDK_PATH/Disk/Games/$PRODUCT_NAME.pdx
+STAGING_DIR=$BUILD_DIR/staging
+PDX_DIR=$BUILD_DIR/$PROJ_NAME.pdx
+GAME_PATH=$PLAYDATE_SDK_PATH/Disk/Games/$PROJ_NAME.pdx
 LIB_EXT=so
 
 # macOS specific adjustments
@@ -30,18 +34,20 @@ if [[ "$(uname)" = "Darwin" ]]; then
 fi
 
 # Pre build cleanup
-rm -rf "$DEVICE_DIR" "$SOURCE_DIR" "$PDX_DIR"
-mkdir -p "$DEVICE_DIR" "$SOURCE_DIR"
+rm -rf "$STAGING_DIR" "$PDX_DIR"
+mkdir -p "$STAGING_DIR"
 
+# Produces the Odin Object Files
 odin build src/ \
-    -out:$DEVICE_DIR/pdex \
+    -out:$STAGING_DIR/pdex \
     -build-mode:obj \
     -target:freestanding_arm32 \
     -subtarget:playdate \
+    -default-to-nil-allocator \
     -no-thread-local \
-    -disable-unwind \
-    -default-to-nil-allocator
+    -disable-unwind
 
+# Using the link_map.ld and the setup.c, this links the individual object files together
 arm-none-eabi-gcc \
     -I "$PLAYDATE_SDK_PATH/C_API" \
     -DTARGET_PLAYDATE=1 \
@@ -55,29 +61,43 @@ arm-none-eabi-gcc \
     -mfpu=fpv5-sp-d16 \
     -nostartfiles \
     -T "$PLAYDATE_SDK_PATH/C_API/buildsupport/link_map.ld" \
-    -Wl,-Map=$DEVICE_DIR/pdex.map,--cref,--gc-sections,--no-warn-mismatch,--emit-relocs,--allow-multiple-definition,--defsym=__exidx_start=0,--defsym=__exidx_end=0 \
-    -o "$SOURCE_DIR/pdex.elf" \
+    -Wl,-Map=$STAGING_DIR/pdex.map,--cref,--gc-sections,--no-warn-mismatch,--emit-relocs,--allow-multiple-definition,--defsym=__exidx_start=0,--defsym=__exidx_end=0 \
+    -o "$STAGING_DIR/pdex.elf" \
     "$PLAYDATE_SDK_PATH/C_API/buildsupport/setup.c" \
-    $DEVICE_DIR/pdex-*.obj
+    $STAGING_DIR/pdex-*.obj
 
+# Produce a binary for the simulator and add it to the staging director.
 odin build src/ \
-    -out:$SOURCE_DIR/pdex.$LIB_EXT \
+    -out:$STAGING_DIR/pdex.$LIB_EXT \
     -build-mode:dll \
     -default-to-nil-allocator
 
-cp src/pdxinfo "$SOURCE_DIR/"
+# Copy the pdxinfo and asset folder into the staging directory
+# Set all the required values in the pdxinfo file.
+sed -e "s/{{version}}/$VERSION/" \
+    -e "s/{{buildNumber}}/$(date +"%y%m%d%H%M%S")/" \
+    -e "s/{{projName}}/$PROJ_NAME/" \
+    -e "s/{{author}}/$AUTHOR/" \
+    -e "s/{{description}}/$DESC/" \
+    -e "s/{{bundleID}}/$BUNDLEID/" \
+    src/pdxinfo > "$STAGING_DIR/pdxinfo"
+
 if [[ -d src/assets ]]; then
-    cp -r src/assets "$SOURCE_DIR/"
+    cp -r src/assets "$STAGING_DIR/"
 fi
 
-"$PLAYDATE_SDK_PATH/bin/pdc" --skip-unknown "$SOURCE_DIR" "$PDX_DIR"
+# Produce the pdx file using the playdate compiler.
+"$PLAYDATE_SDK_PATH/bin/pdc" --skip-unknown "$STAGING_DIR" "$PDX_DIR"
 
-# rm -rf "$GAME_PATH"
-# ln -s "$(pwd)/$PDX_DIR" "$GAME_PATH"
-
+# Produce a pdx zip that can be sideloaded.
 cd build
 zip -r Template.pdx.zip Template.pdx
 
 cd ..
+
+# Simlink so that it can be launched in the simulator.
+if [[ ! -L "$GAME_PATH" ]]; then
+    ln -s "$(realpath "$PDX_DIR")" "$GAME_PATH"
+fi
 
 $PDSIM "$GAME_PATH"
