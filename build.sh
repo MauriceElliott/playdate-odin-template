@@ -8,6 +8,7 @@
 # Finally the third phase builds an x86 version of the binary so it can launch in the simulator
 # We also zip the device version and put it in the build output folder
 # so that it can be quickly picked up and sideloaded onto the playdate.
+echo $PWD
 
 set -e
 
@@ -36,6 +37,13 @@ fi
 # Pre build cleanup
 rm -rf "$STAGING_DIR" "$PDX_DIR"
 mkdir -p "$STAGING_DIR"
+
+# Clone the odin-playdate-api
+if [[ ! -d "./packages/playdate-api" ]]; then
+    cd packages
+    git clone https://www.github.com/MauriceElliott/odin-playdate-api ./playdate-api
+    cd ..
+fi
 
 # Produces the Odin Object Files
 odin build src/ \
@@ -91,7 +99,7 @@ fi
 
 # Produce a pdx zip that can be sideloaded.
 cd build
-zip -r Template.pdx.zip Template.pdx
+zip -r $PROJ_NAME.pdx.zip $PROJ_NAME.pdx
 
 cd ..
 
