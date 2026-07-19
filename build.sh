@@ -8,7 +8,6 @@
 # Finally the third phase builds an x86 version of the binary so it can launch in the simulator
 # We also zip the device version and put it in the build output folder
 # so that it can be quickly picked up and sideloaded onto the playdate.
-echo $PWD
 
 set -e
 
@@ -27,11 +26,13 @@ STAGING_DIR=$BUILD_DIR/staging
 PDX_DIR=$BUILD_DIR/$PROJ_NAME.pdx
 GAME_PATH=$PLAYDATE_SDK_PATH/Disk/Games/$PROJ_NAME.pdx
 LIB_EXT=so
+OBJ_EXT="obj"
 
 # macOS specific adjustments
 if [[ "$(uname)" = "Darwin" ]]; then
     LIB_EXT=dylib
     PDSIM=${PDSIM:-$PLAYDATE_SDK_PATH/bin/PlaydateSimulator} # TODO: Update this value to match MacOS setup.
+    OBJ_EXT="o"
 fi
 
 # Pre build cleanup
@@ -64,6 +65,7 @@ arm-none-eabi-gcc \
     -D__HEAP_SIZE=8388208 \
     -D__STACK_SIZE=61800 \
     -mthumb \
+    -specs=nosys.specs \
     -mcpu=cortex-m7 \
     -mfloat-abi=hard \
     -mfpu=fpv5-sp-d16 \
@@ -72,7 +74,7 @@ arm-none-eabi-gcc \
     -Wl,-Map=$STAGING_DIR/pdex.map,--cref,--gc-sections,--no-warn-mismatch,--emit-relocs,--allow-multiple-definition,--defsym=__exidx_start=0,--defsym=__exidx_end=0 \
     -o "$STAGING_DIR/pdex.elf" \
     "$PLAYDATE_SDK_PATH/C_API/buildsupport/setup.c" \
-    $STAGING_DIR/pdex-*.obj
+    $STAGING_DIR/pdex-*.$OBJ_EXT
 
 # Produce a binary for the simulator and add it to the staging director.
 odin build src/ \
