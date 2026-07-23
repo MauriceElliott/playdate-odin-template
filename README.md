@@ -23,9 +23,19 @@ VERSION="0.1.0"
 4. Profit. (sorry)
 
 If everything was setup correctly the simulator should pop up displaying the following:
+
 If you'd like to sideload it onto your playdate a zip of the pdx was created in the build folder.
 
-## Remaining work
-- [ ] MacOS once over
+## Roadmap
+- [ ] MacOS Support
 - [ ] Windows Support
 - [ ] Extra Examples
+- [ ] Further Development to the PD API
+
+## Acknowledgement
+The original PD API that is used in this project was developed by @Bazzagibbs, I have just made some minor updates and adjustments to get it working on the device.
+@gingerBill for the Odin Programming Language, also for being its mascott on top of his development duties, a heavy burden.
+@Yawning, @Kelimion, @orelsl @Thag (in the discord, not sure of your gh handle) thanks all for the help getting this together, wouldn't have even started without the support.
+
+## License
+MIT
