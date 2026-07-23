@@ -23,6 +23,7 @@ VERSION="0.1.0"
 4. Profit. (sorry)
 
 If everything was setup correctly the simulator should pop up displaying the following:
+![Playdate simulator showing Odin logo bouncing up and down.](./src/assets/bitmaps/playdate_readme_gif.gif)
 
 If you'd like to sideload it onto your playdate a zip of the pdx was created in the build folder.
 
