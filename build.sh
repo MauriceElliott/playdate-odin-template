@@ -102,7 +102,7 @@ fi
 # Produce a pdx zip that can be sideloaded.
 cd build
 zip -r $PROJ_NAME.pdx.zip $PROJ_NAME.pdx
-
+mv $PROJ_NAME.pdx.zip ../
 cd ..
 
 # Simlink so that it can be launched in the simulator.
