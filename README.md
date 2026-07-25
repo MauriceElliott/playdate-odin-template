@@ -1,6 +1,6 @@
 # Odin for Playdate!
 
-This is a repo that gives a short, simple setup for compiling and running Odin for the playdate simulator as well as the playdate hardware. This is currently untested on anything but linux, but within the coming weeks will have support for both MacOS and then Windows.
+This is a repo that gives a short, simple setup for compiling and running Odin for the playdate simulator as well as the playdate hardware. This is currently untested on windows, but within the coming weeks will have support for Windows.
 
 ---
 
@@ -28,10 +28,9 @@ If everything was setup correctly the simulator should pop up displaying the fol
 If you'd like to sideload it onto your playdate a zip of the pdx was created in the build folder.
 
 ## Roadmap
-- [ ] MacOS Support
+- [x] MacOS Support
 - [ ] Windows Support
 - [ ] Extra Examples
-- [ ] Further Development to the PD API
 
 ## Acknowledgement
 The original PD API that is used in this project was developed by @Bazzagibbs, I have just made some minor updates and adjustments to get it working on the device.

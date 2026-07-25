@@ -102,7 +102,6 @@ fi
 # Produce a pdx zip that can be sideloaded.
 cd build
 zip -r $PROJ_NAME.pdx.zip $PROJ_NAME.pdx
-mv $PROJ_NAME.pdx.zip ../
 cd ..
 
 # Simlink so that it can be launched in the simulator.
@@ -110,4 +109,4 @@ if [[ ! -L "$GAME_PATH" ]]; then
     ln -s "$(realpath "$PDX_DIR")" "$GAME_PATH"
 fi
 
-$PDSIM "$GAME_PATH"
+"$PDSIM" "$GAME_PATH"
