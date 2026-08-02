@@ -6,7 +6,7 @@ This is a repo that gives a short, simple setup for compiling and running Odin f
 
 ## Prerequisites
 1. PlaydateSDK installed and PLAYDATE_SDK_PATH set and available in your shell session.
-2. The latest Odin compiler, see [the documentation](https://odin-lang.org/docs/install/) for details in installation.
+2. The latest Odin compiler, see [the documentation](https://odin-lang.org/docs/install/) for details on installation.
 3. Cross Compilation development enabled see [the osdevwiki documentation](https://wiki.osdev.org/GCC_Cross-Compiler#Which_compiler_version_to_choose) on the subject for further details. For me on gentoo it was as simple as `sudo emerge -av crossdev`, on macOS use `brew install arm-none-eabi-gcc`. I will update this section when I have more details.
 
 ## Setup
@@ -40,4 +40,4 @@ The original PD API that is used in this project was developed by @Bazzagibbs, I
 @Yawning, @Kelimion, @orelsl @Thag (in the discord, not sure of your gh handle) thanks all for the help getting this together, wouldn't have even started without the support.
 
 ## License
-MIT
+CC0
