@@ -1,6 +1,6 @@
 # Odin for Playdate!
 
-This is a repo that gives a short, simple setup for compiling and running Odin for the playdate simulator as well as the playdate hardware. This is currently untested on windows, but within the coming weeks will have support for Windows.
+This is a repo that gives a short, simple setup for compiling and running Odin for the playdate simulator as well as the playdate hardware  using the [odin-playdate-api](https://github.com/MauriceElliott/odin-playdate-api). This is currently untested on windows, but within the coming weeks will have support for Windows.
 
 ---
 
