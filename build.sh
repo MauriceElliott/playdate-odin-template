@@ -26,13 +26,11 @@ STAGING_DIR=$BUILD_DIR/staging
 PDX_DIR=$BUILD_DIR/$PROJ_NAME.pdx
 GAME_PATH=$PLAYDATE_SDK_PATH/Disk/Games/$PROJ_NAME.pdx
 LIB_EXT=so
-OBJ_EXT="obj"
 
 # macOS specific adjustments
 if [[ "$(uname)" = "Darwin" ]]; then
     LIB_EXT=dylib
     PDSIM=${PDSIM:-$PLAYDATE_SDK_PATH/bin/PlaydateSimulator} # TODO: Update this value to match MacOS setup.
-    OBJ_EXT="o"
 fi
 
 # Pre build cleanup
@@ -41,9 +39,8 @@ mkdir -p "$STAGING_DIR"
 
 # Clone the odin-playdate-api
 if [[ ! -d "./packages/playdate-api" ]]; then
-    cd packages
-    git clone https://www.github.com/MauriceElliott/odin-playdate-api ./playdate-api
-    cd ..
+    mkdir -p ./packages
+    git clone https://www.github.com/MauriceElliott/odin-playdate-api ./packages/playdate-api
 fi
 
 # Produces the Odin Object Files
@@ -57,6 +54,14 @@ odin build src/ \
     -disable-unwind
 
 # Using the link_map.ld and the setup.c, this links the individual object files together
+# Odin has used both .o and .obj for freestanding object output across releases.
+shopt -s nullglob
+OBJECT_FILES=("$STAGING_DIR"/pdex-*.o "$STAGING_DIR"/pdex-*.obj)
+if (( ${#OBJECT_FILES[@]} == 0 )); then
+    echo "No device object files were produced in $STAGING_DIR" >&2
+    exit 1
+fi
+
 arm-none-eabi-gcc \
     -I "$PLAYDATE_SDK_PATH/C_API" \
     -DTARGET_PLAYDATE=1 \
@@ -74,7 +79,7 @@ arm-none-eabi-gcc \
     -Wl,-Map=$STAGING_DIR/pdex.map,--cref,--gc-sections,--no-warn-mismatch,--emit-relocs,--allow-multiple-definition,--defsym=__exidx_start=0,--defsym=__exidx_end=0 \
     -o "$STAGING_DIR/pdex.elf" \
     "$PLAYDATE_SDK_PATH/C_API/buildsupport/setup.c" \
-    $STAGING_DIR/pdex-*.$OBJ_EXT
+    "${OBJECT_FILES[@]}"
 
 # Produce a binary for the simulator and add it to the staging director.
 odin build src/ \
